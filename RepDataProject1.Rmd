@@ -2,7 +2,9 @@
 title: "Reproducable Research Course Project 1"
 author: "Ian Roberts"
 date: "October 18, 2016"
-output: html_document
+output: 
+html_document: 
+number_sections: yes
 ---
 
 [entry bullshit]
@@ -71,7 +73,9 @@ We were right! The mean and median are very close, making this a normal distribu
 Now that we've looked a little bit by day, let's get a finer look at our subject's movement by five minute interval.
 
 ``` {r adap plot}
-nmean <- na.omit(activities) %>% with(aggregate(steps, list(interval), mean)) %>% as.data.frame
+nmean <- na.omit(activities) %>% 
+        with(aggregate(steps, list(interval), mean)) %>% 
+        as.data.frame
 names(nmean) <- c("interval", "mean")
 ggplot(nmean, aes(interval, mean)) + geom_line() + labs(title = "Average Steps by Interval", x = "Interval", y = "Avg # of Steps Taken")
 ```
@@ -110,29 +114,37 @@ nav <- activities[is.na(activities$steps),]
 with(nav, date <- as.Date(date))
 activitiesImputed <- activities
 
-d1 <- activities[ad == "2012-10-02" | ad == "2012-10-03" | ad == "2012-10-04",] %>% with(aggregate(steps, list(interval), mean))
-activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[1]] <- d1$x
+d1 <- activities[ad == "2012-10-02" | ad == "2012-10-03" | ad == "2012-10-04",] %>% 
+        with(aggregate(steps, list(interval), mean))
+                activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[1]] <- d1$x
 
-d2 <- activities[ad == "2012-10-05" | ad == "2012-10-06" | ad == "2012-10-07",] %>% with(aggregate(steps, list(interval), mean))
-activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[2]] <- d2$x
+d2 <- activities[ad == "2012-10-05" | ad == "2012-10-06" | ad == "2012-10-07",] %>% 
+        with(aggregate(steps, list(interval), mean))
+                activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[2]] <- d2$x
 
-d3 <- activities[ad == "2012-10-31" | ad == "2012-11-02" | ad == "2012-11-03",] %>% with(aggregate(steps, list(interval), mean))
-activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[3]] <- d3$x
+d3 <- activities[ad == "2012-10-31" | ad == "2012-11-02" | ad == "2012-11-03",] %>% 
+        with(aggregate(steps, list(interval), mean))
+                activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[3]] <- d3$x
 
-d4 <- activities[ad == "2012-11-05" | ad == "2012-12-06" | ad == "2012-11-07",] %>% with(aggregate(steps, list(interval), mean))
-activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[4]] <- d4$x
+d4 <- activities[ad == "2012-11-05" | ad == "2012-12-06" | ad == "2012-11-07",] %>% 
+        with(aggregate(steps, list(interval), mean))
+                activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[4]] <- d4$x
 
-d5 <- activities[ad == "2012-11-06" | ad == "2012-11-07" | ad == "2012-11-08",] %>% with(aggregate(steps, list(interval), mean))
-activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[5]] <- d5$x
+d5 <- activities[ad == "2012-11-06" | ad == "2012-11-07" | ad == "2012-11-08",] %>% 
+        with(aggregate(steps, list(interval), mean))
+                activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[5]] <- d5$x
 
-d6 <- activities[ad == "2012-11-11" | ad == "2012-11-12" | ad == "2012-11-13",] %>% with(aggregate(steps, list(interval), mean))
-activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[6]] <- d6$x
+d6 <- activities[ad == "2012-11-11" | ad == "2012-11-12" | ad == "2012-11-13",] %>% 
+        with(aggregate(steps, list(interval), mean))
+                activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[6]] <- d6$x
 
-d7 <- activities[ad == "2012-11-15" | ad == "2012-11-16" | ad == "2012-11-17",] %>% with(aggregate(steps, list(interval), mean))
-activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[7]] <- d7$x
+d7 <- activities[ad == "2012-11-15" | ad == "2012-11-16" | ad == "2012-11-17",] %>%
+        with(aggregate(steps, list(interval), mean))
+                activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[7]] <- d7$x
 
-d8 <- activities[ad == "2012-11-27" | ad == "2012-11-28" | ad == "2012-11-29",] %>% with(aggregate(steps, list(interval), mean))
-activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[8]] <- d8$x
+d8 <- activities[ad == "2012-11-27" | ad == "2012-11-28" | ad == "2012-11-29",] %>% 
+        with(aggregate(steps, list(interval), mean))
+                activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[8]] <- d8$x
 
 table(is.na(activities$steps))
 table(is.na(activitiesImputed$steps))
@@ -150,5 +162,14 @@ mean(isum$x)
 median(isum$x)
 ```
 
+These do look slightly different, and there is more variation in the mean and median, but we are still firmly planted in normality.
 
 ##Are there differences in activity patterns between weekdays and weekends?
+
+Final question! Lets dig deep.
+
+```{r weekend date}
+activitiesImputed$date <- as.Date(activitiesImputed$date)
+mutate(activitiesImputed, daytype = as.factor())
+```
+
