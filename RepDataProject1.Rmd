@@ -1,0 +1,154 @@
+---
+title: "Reproducable Research Course Project 1"
+author: "Ian Roberts"
+date: "October 18, 2016"
+output: html_document
+---
+
+[entry bullshit]
+
+##Loading the Data
+
+To do this assignment, we first need the data. We can get it in a hop, a skip, and a jump.
+
+```{r download and read, cache=TRUE}
+file = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+download.file(file, destfile = "RepData.zip")
+unzip("RepData.zip")
+activities <- read.csv("activity.csv", na.strings = "NA")
+```
+
+##What is mean total number of steps taken per day?
+
+Next portion has to do with the total number of steps taken over the sixty days in the set. 
+
+``` {r total steps per day, message=FALSE}
+library(dplyr)
+nsum <- na.omit(activities) %>% with(tapply(steps, date, sum))
+print(nsum)
+```
+
+That's strange, there are eight days missing after we removed the NAs. Let's investigate further.
+
+``` {r total steps na table}
+na.omit(activities) %>% with(table(date))
+```
+
+Okay, so according to this table, of the 288 values from each of the eight days missing in our sum, all were missing. So our code was correct!
+
+Let's do some further analysis on this sum.
+
+But first, this will be a lot easier if we turn 'nsum' into a data frame. Credit to doug on stackoverflow[1]
+
+``` {r total steps dataframe}
+nsumd <- na.omit(activities) %>% with(aggregate(steps, list(date), sum))
+class(nsumd)
+dim(nsumd)
+```
+
+As we can see, it came out with a data frame with two columns, and removed the 8 days that are NAs. Much easier to work with!
+
+Onward and upward! Now let's make us a visually appealing histogram.
+
+``` {r total steps histogram}
+library(ggplot2)
+ggplot(nsumd, aes(x)) + geom_histogram(bins = 5) + labs(title = "Total Steps Taken Each Day", x = "Totals by Day", y = "Frequency")
+```
+
+Looks like a nice normal distribution.
+
+Now for the mean and the median to confirm
+
+``` {r total steps stats}
+mean(nsumd$x)
+median(nsumd$x)
+```
+
+We were right! The mean and median are very close, making this a normal distribution. 
+
+##What is the average daily activity pattern?
+
+Now that we've looked a little bit by day, let's get a finer look at our subject's movement by five minute interval.
+
+``` {r adap plot}
+nmean <- na.omit(activities) %>% with(aggregate(steps, list(interval), mean)) %>% as.data.frame
+names(nmean) <- c("interval", "mean")
+ggplot(nmean, aes(interval, mean)) + geom_line() + labs(title = "Average Steps by Interval", x = "Interval", y = "Avg # of Steps Taken")
+```
+
+Now to get an exact value on which interval is the busiest
+
+``` {r adap max}
+nmean[which.max(nmean$mean),]
+```
+
+Seeing as how the max value is so much higher than any other value, we could hazard a guess and say our subject goes for a run/walk before they tackle their day
+
+##Imputing missing values
+
+So, we know that there are some missing values, and we know that potentially they could skew our data. Let's find out what we're dealing with.
+
+``` {r mv subset creation}
+table(is.na(activities))
+```
+
+Looks like there are 2304 missing values. The hunt continues!
+
+``` {r mv query}
+table(is.na(activities$interval))
+table(is.na(activities$date))
+table(is.na(activities$steps))
+```
+
+It would seem that 'steps' is our culprit. And from the table in *Number of Steps per Day*, we know that all our missing steps are from those eight days. 
+
+To get a good idea as to what those values would be, we're going to impute the data. Our method here will be to take the average of the closest three days and use those as our new values.
+
+``` {r mv imputing values, cache=TRUE}
+ad <- activities$date
+nav <- activities[is.na(activities$steps),]
+with(nav, date <- as.Date(date))
+activitiesImputed <- activities
+
+d1 <- activities[ad == "2012-10-02" | ad == "2012-10-03" | ad == "2012-10-04",] %>% with(aggregate(steps, list(interval), mean))
+activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[1]] <- d1$x
+
+d2 <- activities[ad == "2012-10-05" | ad == "2012-10-06" | ad == "2012-10-07",] %>% with(aggregate(steps, list(interval), mean))
+activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[2]] <- d2$x
+
+d3 <- activities[ad == "2012-10-31" | ad == "2012-11-02" | ad == "2012-11-03",] %>% with(aggregate(steps, list(interval), mean))
+activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[3]] <- d3$x
+
+d4 <- activities[ad == "2012-11-05" | ad == "2012-12-06" | ad == "2012-11-07",] %>% with(aggregate(steps, list(interval), mean))
+activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[4]] <- d4$x
+
+d5 <- activities[ad == "2012-11-06" | ad == "2012-11-07" | ad == "2012-11-08",] %>% with(aggregate(steps, list(interval), mean))
+activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[5]] <- d5$x
+
+d6 <- activities[ad == "2012-11-11" | ad == "2012-11-12" | ad == "2012-11-13",] %>% with(aggregate(steps, list(interval), mean))
+activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[6]] <- d6$x
+
+d7 <- activities[ad == "2012-11-15" | ad == "2012-11-16" | ad == "2012-11-17",] %>% with(aggregate(steps, list(interval), mean))
+activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[7]] <- d7$x
+
+d8 <- activities[ad == "2012-11-27" | ad == "2012-11-28" | ad == "2012-11-29",] %>% with(aggregate(steps, list(interval), mean))
+activitiesImputed$steps[activitiesImputed$date==unique(nav$date)[8]] <- d8$x
+
+table(is.na(activities$steps))
+table(is.na(activitiesImputed$steps))
+
+```
+
+Success! Now let's recreate the analyses from Heading 2 and see if there's any difference.
+
+``` {r mv recreate}
+isum <- na.omit(activitiesImputed) %>% with(aggregate(steps, list(date), sum))
+
+ggplot(isum, aes(x)) + geom_histogram(bins = 5) + labs(title = "Total Steps Taken Each Day", x = "Totals by Day", y = "Frequency")
+
+mean(isum$x)
+median(isum$x)
+```
+
+
+##Are there differences in activity patterns between weekdays and weekends?
