@@ -1,9 +1,10 @@
 ---
 title: "Reproducible Research Course Project 1"
+author: "Ian Roberts"
 date: "October 23, 2016"
-output: 
-html_document: 
-number_sections: yes
+output:
+  html_document:
+    keep_md: true
 ---
 
 
@@ -82,7 +83,8 @@ nmean <- na.omit(activities) %>%
         as.data.frame
         names(nmean) <- c("interval", "mean")
 ggplot(nmean, aes(interval, mean)) + geom_line() + 
-        labs(title = "Average Steps by Interval", x = "Interval", y=                      "Avg # of Steps Taken")
+        labs(title = "Average Steps by Interval", x = "Interval", 
+                 y = "Avg # of Steps Taken")
 ```
 
 Now to get an exact value on which interval is the busiest
@@ -209,4 +211,4 @@ ggplot(full, aes(interval, mean)) + geom_line() + facet_grid(days~.)+
                      "Avg # of Steps Taken")
 ```
 
-Judging by our two graphs, it looks like our subject has a desk job. However, they are much more active on the weekend
+Judging by our two graphs, it looks like our subject has a desk job. However, they are much more active on the weekend.
