@@ -205,7 +205,7 @@ wknd <- filter(activitiesImputed, days == "Weekend") %>%
         wknd$days <- "Weekend"
         names(wknd) <- c("interval", "mean", "days")
 full <- full_join(wkdy,wknd)
-ggplot(full, aes(interval, mean)) + geom_line() + facet_grid(.~days)+ 
+ggplot(full, aes(interval, mean)) + geom_line() + facet_grid(days~.)+ 
         labs(title = "Average Steps by Interval", x = "Interval", y=
                      "Avg # of Steps Taken")
 ```
