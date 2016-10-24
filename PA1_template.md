@@ -90,8 +90,7 @@ Okay, so according to this table, of the 288 values from each of the eight days 
 
 Let's do some further analysis on this sum.
 
-But first, this will be a lot easier if we turn 'nsum' into a data frame. Credit to doug on stackoverflow[1]
-
+But first, this will be a lot easier if we turn 'nsum' into a data frame.
 
 ```r
 nsumd <- na.omit(activities) %>% 
