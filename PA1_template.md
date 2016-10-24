@@ -1,5 +1,4 @@
-# Reproducible Research Course Project 1
-Ian Roberts  
+# Reproducible Research Course Project 1 
 October 23, 2016  
 
 
