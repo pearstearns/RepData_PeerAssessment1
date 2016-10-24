@@ -1,6 +1,5 @@
 ---
 title: "Reproducible Research Course Project 1"
-author: "Ian Roberts"
 date: "October 23, 2016"
 output: 
 html_document: 
